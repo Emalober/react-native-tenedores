@@ -1,34 +1,51 @@
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Input, Icon, Button } from "react-native-elements";
+import {
+  withNavigation,
+  NavigationScreenProp,
+  NavigationState
+} from "react-navigation";
 import { validateEmail } from "../../utils/Validation";
 import * as firebase from "firebase";
+import Toast from "react-native-easy-toast";
+import Loading from "../Loading";
 
-export default function RegisterForm(props) {
+type RegisterFormProps = {
+  navigation: NavigationScreenProp<NavigationState>;
+  toastRef: React.MutableRefObject<Toast>;
+};
+
+function RegisterForm(props: RegisterFormProps) {
+  const { toastRef, navigation } = props;
   const [hidePassword, setHidePasword] = useState(true);
   const [hideRepeatPassword, setHideRepeatPasword] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async () => {
+    setIsLoading(true);
     if (!email || !password || !repeatPassword) {
-      console.log("Todos los datos son obligatorios");
+      toastRef.current.show("Todos los datos son obligatorios");
     } else if (!validateEmail(email)) {
-      console.log("El mail ingresado es invalido");
+      toastRef.current.show("El mail ingresado es invalido");
     } else if (password !== repeatPassword) {
-      console.log("Las contraseñas no son iguales");
+      toastRef.current.show("Las contraseñas no son iguales");
     } else {
       await firebase
-                .auth()
-                .createUserWithEmailAndPassword(email, password)
-                  .then(() => {
-                    console.log("Usuario creado correctamente")
-                  })
-                  .catch(() => {
-                    console.log("Error al crear la cuenta")
-                  })
+        .auth()
+        .createUserWithEmailAndPassword(email, password)
+        .then(() => {
+          toastRef.current.show("Usuario creado correctamente");
+          navigation.navigate("MyAccount");
+        })
+        .catch(() => {
+          toastRef.current.show("Error al crear la cuenta");
+        });
     }
+    setIsLoading(false);
   };
 
   return (
@@ -79,9 +96,12 @@ export default function RegisterForm(props) {
         buttonStyle={styles.btnRegister}
         onPress={handleRegister}
       />
+      <Loading text="Creando cuenta..." isVisible={isLoading} />
     </View>
   );
 }
+
+export default withNavigation(RegisterForm);
 
 const styles = StyleSheet.create({
   formContainer: {
