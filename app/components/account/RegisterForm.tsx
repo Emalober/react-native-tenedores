@@ -1,16 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Input, Icon, Button } from "react-native-elements";
+import { validateEmail } from "../../utils/Validation";
+import * as firebase from "firebase";
 
 export default function RegisterForm(props) {
-  const handleRegister = () => console.log("handleRegister");
-  
+  const [hidePassword, setHidePasword] = useState(true);
+  const [hideRepeatPassword, setHideRepeatPasword] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
+
+  const handleRegister = async () => {
+    if (!email || !password || !repeatPassword) {
+      console.log("Todos los datos son obligatorios");
+    } else if (!validateEmail(email)) {
+      console.log("El mail ingresado es invalido");
+    } else if (password !== repeatPassword) {
+      console.log("Las contraseñas no son iguales");
+    } else {
+      await firebase
+                .auth()
+                .createUserWithEmailAndPassword(email, password)
+                  .then(() => {
+                    console.log("Usuario creado correctamente")
+                  })
+                  .catch(() => {
+                    console.log("Error al crear la cuenta")
+                  })
+    }
+  };
+
   return (
     <View style={styles.formContainer} behavior="padding" enable>
       <Input
         placeholder="Correo electronico"
         containerStyle={styles.inputForm}
-        onChange={() => console.log("Email actualizado")}
+        onChange={e => setEmail(e.nativeEvent.text)}
         rightIcon={
           <Icon
             type="material-community"
@@ -21,27 +47,29 @@ export default function RegisterForm(props) {
       />
       <Input
         placeholder="Contraseña"
-        secureTextEntry={true}
+        secureTextEntry={hidePassword}
         containerStyle={styles.inputForm}
-        onChange={() => console.log("Contraseña actualizada")}
+        onChange={e => setPassword(e.nativeEvent.text)}
         rightIcon={
           <Icon
             type="material-community"
-            name="eye-outline"
+            name={hidePassword ? "eye-outline" : "eye-off-outline"}
             iconStyle={styles.iconRight}
+            onPress={() => setHidePasword(!hidePassword)}
           ></Icon>
         }
       />
       <Input
         placeholder="Repetir contraseña"
-        secureTextEntry={true}
+        secureTextEntry={hideRepeatPassword}
         containerStyle={styles.inputForm}
-        onChange={() => console.log("Repetir contraseña actualizada")}
+        onChange={e => setRepeatPassword(e.nativeEvent.text)}
         rightIcon={
           <Icon
             type="material-community"
-            name="eye-outline"
+            name={hideRepeatPassword ? "eye-outline" : "eye-off-outline"}
             iconStyle={styles.iconRight}
+            onPress={() => setHideRepeatPasword(!hideRepeatPassword)}
           ></Icon>
         }
       />
