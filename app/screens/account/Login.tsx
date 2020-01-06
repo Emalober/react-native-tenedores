@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { StyleSheet, View, Text, ScrollView, Image } from "react-native";
 import { Button, Divider } from "react-native-elements";
 import {
@@ -6,6 +6,8 @@ import {
   NavigationScreenProp,
   NavigationState
 } from "react-navigation";
+import LoginForm from "../../components/account/LoginForm";
+import Toast from "react-native-easy-toast";
 
 type LoginProps = {
   navigation: NavigationScreenProp<NavigationState>;
@@ -13,6 +15,7 @@ type LoginProps = {
 
 export default function Login(props: LoginProps) {
   const { navigation } = props;
+  const toastRef: React.MutableRefObject<Toast> = useRef();
 
   const handleRegisterPress = (): void => {
     navigation.navigate("Register");
@@ -26,13 +29,14 @@ export default function Login(props: LoginProps) {
         resizeMode="contain"
       ></Image>
       <View style={styles.viewContainer}>
-        <Text>Form login...</Text>
+        <LoginForm navigation={navigation} toastRef={toastRef}></LoginForm>
         <CreateAccoutn onPress={handleRegisterPress}></CreateAccoutn>
       </View>
       <Divider style={styles.divider}></Divider>
       <View style={styles.viewContainer}>
         <Text>Login Facebook</Text>
       </View>
+      <Toast ref={toastRef} position="center" opacity={0.8}></Toast>
     </ScrollView>
   );
 }
