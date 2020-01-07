@@ -49,7 +49,6 @@ export default function InfoUser(props: InfoUserProps) {
 
         uploadImage(result.uri, uid)
           .then(() => {
-            console.log("Imagen subida correctamente");
             updatePhotoUrl(uid);
           })
           .finally(() => setLoading(false));

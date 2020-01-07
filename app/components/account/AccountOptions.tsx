@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { ListItem, Colors } from "react-native-elements";
 import Modal from "../Modal";
 import ChangeDisplayNameForm from "../account/ChangeDisplayNameForm";
 import ChangeEmailForm from "../account/ChangeEmailForm";
 import ChangePasswordForm from "../account/ChangePasswordForm";
+import Toast from "react-native-easy-toast";
 
 type ItemOptions = {
   title: string;
@@ -27,6 +28,7 @@ export default function AccountOptions({
 }: AccountOptionsProps) {
   const [isVisibleModal, setIsVisibleModal] = useState(false);
   const [renderComponent, setRenderComponent] = useState(null);
+  const toastRef = useRef();
   const menuOptions: Array<ItemOptions> = [
     {
       title: "Cambiar Nombre y Apellido",
@@ -69,10 +71,22 @@ export default function AccountOptions({
         );
         break;
       case "email":
-        setRenderComponent(ChangeEmailForm);
+        setRenderComponent(
+          <ChangeEmailForm
+            email={userInfo.email}
+            setReloadData={setReloadData}
+            setIsVisibleModal={setIsVisibleModal}
+          />
+        );
         break;
       case "password":
-        setRenderComponent(ChangePasswordForm);
+        setRenderComponent(
+          <ChangePasswordForm
+            setReloadData={setReloadData}
+            setIsVisibleModal={setIsVisibleModal}
+            toastRef={toastRef}
+          />
+        );
         break;
       default:
         break;
@@ -105,6 +119,7 @@ export default function AccountOptions({
           {renderComponent}
         </Modal>
       )}
+      <Toast ref={toastRef} position="center" opacity={0.8} />
     </View>
   );
 }

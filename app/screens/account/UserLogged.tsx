@@ -26,7 +26,6 @@ export default function UserGuest() {
 
     (async () => {
       const user = await firebase.auth().currentUser;
-      //console.log(user);
       setUserInfo(user.providerData[0]);
     })();
     setReloadData(false);

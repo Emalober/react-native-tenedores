@@ -11,7 +11,6 @@ export default function MyAccount() {
   useEffect(() => {
     auth.onAuthStateChanged(user => {
   //  firebase.auth().onAuthStateChanged(user => {
-      console.log(user);
       !user ? setLogin(false) : setLogin(true);
     });
   }, [login]);
