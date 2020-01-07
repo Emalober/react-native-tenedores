@@ -1,18 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, View, Text, CameraRoll } from "react-native";
 import { Avatar } from "react-native-elements";
 import * as firebase from "firebase";
 import * as Permissions from "expo-permissions";
 import * as ImagePicker from "expo-image-picker";
+import Toast from "react-native-easy-toast";
 
 type InfoUserProps = {
   userInfo: firebase.UserInfo;
+  setReloadData: (value: boolean) => void;
+  toastRef: React.MutableRefObject<Toast>;
+  setLoading: (value: boolean) => void;
+  setTextLoading: (value: string) => void;
 };
 
 export default function InfoUser(props: InfoUserProps) {
   const {
-    userInfo: { photoURL, uid, displayName, email }
+    setReloadData,
+    userInfo: { photoURL, uid, displayName, email },
+    toastRef,
+    setLoading,
+    setTextLoading
   } = props;
+
+  setTextLoading("Actualizando avatar");
 
   const handleEditAvatar = async () => {
     const resultPermission = await Permissions.askAsync(
@@ -22,7 +33,9 @@ export default function InfoUser(props: InfoUserProps) {
       resultPermission.permissions.cameraRoll.status;
 
     if (resultPermissionCamera === "denied") {
-      console.log("Se necesita dar permisos para acceder a las imagenes");
+      toastRef.current.show(
+        "Se necesita dar permisos para acceder a las imagenes"
+      );
     } else {
       const result = await ImagePicker.launchImageLibraryAsync({
         allowsEditing: true,
@@ -30,12 +43,16 @@ export default function InfoUser(props: InfoUserProps) {
       });
 
       if (result.cancelled) {
-        console.log("Se cancelo la seleccion de imgen");
+        toastRef.current.show("Se cancelo la seleccion de imgen");
       } else {
-        uploadImage(result.uri, uid).then(() => {
-          console.log("Imagen subida correctamente");
-          updatePhotoUrl(uid);
-        });
+        setLoading(true);
+
+        uploadImage(result.uri, uid)
+          .then(() => {
+            console.log("Imagen subida correctamente");
+            updatePhotoUrl(uid);
+          })
+          .finally(() => setLoading(false));
       }
     }
   };
@@ -61,8 +78,9 @@ export default function InfoUser(props: InfoUserProps) {
           photoURL: result
         };
         await firebase.auth().currentUser.updateProfile(update);
+        setReloadData(true);
       })
-      .catch(() => console.log("Error al recuperar el avatar"));
+      .catch(() => toastRef.current.show("Error al recuperar el avatar"));
   };
 
   return (
