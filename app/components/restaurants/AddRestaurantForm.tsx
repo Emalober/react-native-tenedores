@@ -20,6 +20,8 @@ type AddRestaurantFormProps = {
   toastRef: React.MutableRefObject<Toast>;
 };
 
+const WidthScreen = Dimensions.get("window").width;
+
 export default function AddRestaurantForm({
   navigation,
   setIsLoading,
@@ -29,6 +31,8 @@ export default function AddRestaurantForm({
 
   return (
     <ScrollView>
+      <ImageRestaurant imageRestaurant={imageSelected[0]} />
+      <FormAdd />
       <UploadImage
         imageSelected={imageSelected}
         setImageSelected={setImageSelected}
@@ -43,6 +47,26 @@ type UploadImageProps = {
   setImageSelected: React.Dispatch<React.SetStateAction<any[]>>;
   toastRef: React.MutableRefObject<Toast>;
 };
+
+function ImageRestaurant(props) {
+  const { imageRestaurant } = props;
+
+  return (
+    <View style={styles.viewPhoto}>
+      {imageRestaurant ? (
+        <Image
+          source={{ uri: imageRestaurant }}
+          style={{ width: WidthScreen, height: 200 }}
+        />
+      ) : (
+        <Image
+          source={require("../../../assets/img/no-image.png")}
+          style={{ width: WidthScreen, height: 200 }}
+        />
+      )}
+    </View>
+  );
+}
 
 function UploadImage(props: UploadImageProps) {
   const { imageSelected, setImageSelected, toastRef } = props;
@@ -118,7 +142,41 @@ function UploadImage(props: UploadImageProps) {
   );
 }
 
+function FormAdd(props) {
+  return (
+    <View style={styles.viewForm}>
+      <Input
+        placeholder="Nombre del restaurant"
+        containerStyle={styles.inputForm}
+        onChange={() => console.log("Nombre del restaurant actualizado")}
+      />
+      <Input
+        placeholder="Direccion del restaurant"
+        containerStyle={styles.inputForm}
+        rightIcon={{
+          type: "material-community",
+          name: "google-maps",
+          color: "#c2c2c2",
+          onPress: () => console.log("Selleciona la localizacion")
+        }}
+        onChange={() => console.log("Direccion del restaurant actualizado")}
+      />
+      <Input
+        placeholder="Descripcion"
+        multiline={true}
+        inputContainerStyle={styles.textArea}
+        onChange={() => console.log("Descripcion del restaurant actualizado")}
+      />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  viewPhoto: {
+    alignItems: "center",
+    height: 200,
+    marginBottom: 20
+  },
   viewImage: {
     flexDirection: "row",
     marginTop: 30,
@@ -137,5 +195,18 @@ const styles = StyleSheet.create({
     marginRight: 10,
     height: 70,
     width: 70
+  },
+  viewForm: {
+    marginLeft: 10,
+    marginRight: 10
+  },
+  inputForm: {
+    marginBottom: 10
+  },
+  textArea: {
+    height: 100,
+    width: "100%",
+    padding: 0,
+    margin: 0
   }
 });
